@@ -36,6 +36,7 @@ class Team {
       for(let player of this.players){
         const distance_to_center_line = this.field.x - player.x
         player.x += distance_to_center_line * 2
+        player.reset_destination()
       }
     }
   }

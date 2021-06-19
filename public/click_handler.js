@@ -26,14 +26,13 @@ class ClickHandler {
   handle_left_click(x, y){
     const clicked_players = this.list_clicked_players(x, y)
     if (clicked_players.length === 0) {
-      this.deselect_players()
+      this.players.map(p => p.move_to(x, y))
     } else {
       clicked_players.map(p => p.click())
     }
   }
 
   handle_right_click(x, y){
-    this.players.map(p => p.move_to(x, y))
     this.deselect_players()
   }
 
@@ -45,7 +44,7 @@ class ClickHandler {
     let clicked_players = []
     for(let player of this.players){
       const d = dist(player.x, player.y, x, y)
-      if(d < (player.r / 2) * 1.5){
+      if(d < player.r){
         clicked_players.push(player)
       }
     }

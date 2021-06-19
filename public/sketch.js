@@ -5,7 +5,7 @@ let click_handler
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  // frameRate(10)
+  frameRate(10)
   field = new Field(width/2, height/2, width, height)
   scale_factor = field.scale_factor
   teams = []

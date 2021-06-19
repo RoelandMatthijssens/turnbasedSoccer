@@ -7,6 +7,7 @@ class Player {
     this.r = 1.6 * this.scale_factor
     this.selected = false
     this.destination = createVector(this.x, this.y)
+    this.speed = random(4, 10) * this.scale_factor
   }
 
   click(){
@@ -14,7 +15,6 @@ class Player {
       this.selected = false
     } else {
       this.selected = true
-      this.reset_destination()
     }
   }
 
@@ -48,9 +48,16 @@ class Player {
     stroke(230, 213, 69)
     noFill()
     const d = dist(this.x, this.y, this.destination.x, this.destination.y)
-    if(d > this.scale_factor){
-      line(this.x, this.y, this.destination.x, this.destination.y)
+    if(d < this.scale_factor){
+      return
     }
+    const current_pos = createVector(this.x, this.y)
+    const destination = this.destination.copy()
+    circle(destination.x, destination.y, 20)
+    let step = p5.Vector.sub(destination, current_pos)
+    step.setMag(min(this.speed, step.mag()))
+    step = p5.Vector.add(step, current_pos)
+    line(this.x, this.y, step.x, step.y)
   }
 
 

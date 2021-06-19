@@ -1,13 +1,13 @@
 class Player {
   constructor(x, y, color, scale_factor) {
-    this.x = x
-    this.y = y
+    this.pos = createVector(x, y)
     this.color = color
     this.scale_factor = scale_factor
     this.r = 1.6 * this.scale_factor
     this.selected = false
-    this.destination = createVector(this.x, this.y)
+    this.destination = this.pos.copy()
     this.speed = random(4, 10) * this.scale_factor
+    this.step = this.pos.copy()
   }
 
   click(){
@@ -16,22 +16,42 @@ class Player {
     } else {
       this.selected = true
     }
+    console.log(this)
   }
 
-  move_to(x, y){
+  set_destination(x, y){
     if (this.selected) {
       this.destination = createVector(x, y)
+      this.step = this.calculate_next_step()
+    }
+  }
+
+  set_pos(x, y){
+    this.pos = createVector(x, y)
+    this.reset_destination()
+  }
+
+  clear_destination(){
+    this.destination = null
+    this.step = null
+  }
+
+  move(){
+    if(this.step){
+      this.pos = this.step.copy()
+      this.step = this.calculate_next_step()
     }
   }
 
   reset_destination(){
-    this.destination = createVector(this.x, this.y)
+    this.destination = null
+    this.step = null
   }
 
   draw(){
     noStroke()
     fill(this.color)
-    circle(this.x, this.y, this.r)
+    circle(this.pos.x, this.pos.y, this.r)
     this.draw_selected_indicator()
     this.draw_trajectory()
   }
@@ -40,25 +60,43 @@ class Player {
     if(this.selected){
       stroke(230, 213, 69)
       noFill()
-      circle(this.x, this.y, this.r * 2)
+      circle(this.pos.x, this.pos.y, this.r * 2)
     }
   }
 
   draw_trajectory(){
     stroke(230, 213, 69)
     noFill()
-    const d = dist(this.x, this.y, this.destination.x, this.destination.y)
-    if(d < this.scale_factor){
-      return
+    if(this.close_to_destination()){
+      this.reset_destination()
     }
-    const current_pos = createVector(this.x, this.y)
-    const destination = this.destination.copy()
-    circle(destination.x, destination.y, 20)
-    let step = p5.Vector.sub(destination, current_pos)
-    step.setMag(min(this.speed, step.mag()))
-    step = p5.Vector.add(step, current_pos)
-    line(this.x, this.y, step.x, step.y)
+    if(this.destination){
+      circle(this.destination.x, this.destination.y, 20)
+    }
+    if(this.step){
+      line(this.pos.x, this.pos.y, this.step.x, this.step.y)
+    }
   }
 
+  calculate_next_step(){
+    if (this.close_to_destination()) {
+      this.reset_destination()
+    }
+    if (this.destination && this.pos) {
+      let step = p5.Vector.sub(this.destination, this.pos)
+      step.setMag(min(this.speed, step.mag()))
+      step = p5.Vector.add(step, this.pos)
+      return step
+    } else {
+      return null
+    }
+  }
 
+  close_to_destination(){
+    if(!this.destination){
+      return true
+    }
+    const d = dist(this.pos.x, this.pos.y, this.destination.x, this.destination.y)
+    return d < this.scale_factor
+  }
 }

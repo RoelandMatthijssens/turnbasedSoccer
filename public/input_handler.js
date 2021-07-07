@@ -5,8 +5,6 @@ class InputHandler {
   static ENTER = 'Enter'
   constructor(game) {
     this.game = game
-    this.teams = game.teams
-    this.players = this.teams.flatMap( t => t.players )
   }
 
   handle_key(key){
@@ -34,7 +32,7 @@ class InputHandler {
   handle_left_click(x, y){
     const clicked_players = this.list_clicked_players(x, y)
     if (clicked_players.length === 0) {
-      this.players.map(p => p.set_destination(x, y))
+      this.game.players.map(p => p.set_destination(x, y))
     } else {
       clicked_players.map(p => p.click())
     }
@@ -48,12 +46,12 @@ class InputHandler {
   }
 
   deselect_players(){
-    this.players.map(p => p.selected = false)
+    this.game.players.map(p => p.selected = false)
   }
 
   list_clicked_players(x, y){
     let clicked_players = []
-    for(let player of this.players){
+    for(let player of this.game.players){
       const d = dist(player.pos.x, player.pos.y, x, y)
       if(d < player.r){
         clicked_players.push(player)

@@ -42,8 +42,4 @@ class Team {
     }
     this.players = players
   }
-
-  play_turn(){
-    this.players.map(p => p.move())
-  }
 }

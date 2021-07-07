@@ -1,13 +1,15 @@
 class Player {
   constructor(x, y, color, scale_factor) {
     this.pos = createVector(x, y)
+    this.prev_pos = this.pos.copy()
     this.color = color
     this.scale_factor = scale_factor
     this.r = 1.6 * this.scale_factor
     this.selected = false
     this.destination = this.pos.copy()
-    this.speed = random(4, 10) * this.scale_factor
     this.step = this.pos.copy()
+    this.speed = random(4, 10)
+    this.strength = random(4, 10)
   }
 
   click(){
@@ -27,6 +29,7 @@ class Player {
   }
 
   set_pos(x, y){
+    this.prev_pos = this.pos.copy()
     this.pos = createVector(x, y)
     this.reset_destination()
   }
@@ -38,9 +41,25 @@ class Player {
 
   move(){
     if(this.step){
+      this.prev_pos = this.pos.copy()
       this.pos = this.step.copy()
       this.step = this.calculate_next_step()
     }
+  }
+
+  collision_with(player){
+    console.log('collision between', this, player)
+    if(this.strength > player.strength){
+      this.push_player(player)
+    }
+  }
+
+  push_player(player){
+    let v = p5.Vector.sub(player.prev_pos, this.pos)
+    v.setMag(this.r * (2 + this.strength / 10))
+    v = p5.Vector.add(v, this.pos)
+    player.set_pos(v.x, v.y)
+    player.prev_pos = player.pos.copy()
   }
 
   reset_destination(){
@@ -51,7 +70,7 @@ class Player {
   draw(){
     noStroke()
     fill(this.color)
-    circle(this.pos.x, this.pos.y, this.r)
+    circle(this.pos.x, this.pos.y, this.r*2)
     this.draw_selected_indicator()
     this.draw_trajectory()
   }
@@ -84,7 +103,7 @@ class Player {
     }
     if (this.destination && this.pos) {
       let step = p5.Vector.sub(this.destination, this.pos)
-      step.setMag(min(this.speed, step.mag()))
+      step.setMag(min(this.speed*this.scale_factor, step.mag()))
       step = p5.Vector.add(step, this.pos)
       return step
     } else {
